@@ -1,6 +1,7 @@
-# JPAShop
+# jpaReact
 
 Spring Boot 와 JPA을 이용한 웹 어플리케이션 개발
+  + Front React.js 추가
 
 
 1. 프로젝트의 목적 및 용도
