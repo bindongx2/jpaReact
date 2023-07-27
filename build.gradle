@@ -1,0 +1,87 @@
+plugins {
+	id 'org.springframework.boot' version '2.5.13'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
+	id 'java'
+}
+
+
+group = 'jpaReact'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation "org.springframework.boot:spring-boot-starter-web"
+	implementation "nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect"
+	/* ByteBuddy */
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate5'
+	/* html 서버 재기동 없이 리플레쉬 가능 */
+	implementation 'org.springframework.boot:spring-boot-devtools'
+
+	/* QueryDSL 추가 */
+	implementation "com.querydsl:querydsl-jpa"
+	implementation "com.querydsl:querydsl-apt"
+
+	/*
+	쿼리 파라미터 console에 보여주는 외부 라이브러리
+	운영에 배포할 경우는 성능테스트 필수
+	*/
+	implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.8.0")
+
+	/* Swagger 사용 */
+	implementation 'io.springfox:springfox-swagger2:3.0.0'
+	implementation 'io.springfox:springfox-swagger-ui:3.0.0'
+	implementation("io.springfox:springfox-boot-starter:3.0.0")
+
+	compileOnly 'org.projectlombok:lombok'
+	runtimeOnly 'com.h2database:h2'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+	//JUnit4 추가
+	testImplementation("org.junit.vintage:junit-vintage-engine") {
+		exclude group: "org.hamcrest", module: "hamcrest-core"
+	}
+}
+
+/* QueryDSL 추가 */
+def querydslDir = "$buildDir/generated/querydsl"
+querydsl {
+	library = "com.querydsl:querydsl-apt"
+	jpa = true
+	querydslSourcesDir = querydslDir
+}
+
+sourceSets {
+	main {
+		java {
+			srcDirs = ['src/main/java', querydslDir]
+		}
+	}
+}
+
+compileQuerydsl{
+	options.annotationProcessorPath = configurations.querydsl
+}
+
+configurations {
+	querydsl.extendsFrom compileClasspath
+}
+
+//Junit5 부터 다음 내용을 추가해야 테스트가 인식된다
+test {
+	useJUnitPlatform()
+}
